@@ -130,7 +130,7 @@
         <td th:text="${order.vendor}"></td>
         <td th:text="${order.dueDate}"></td>
 
-        <td th:text="${order.progressStatus}"
+        <td th:text="${order.progressStatus.description}"
             th:classappend="'status-' + ${order.progressStatus}">
         </td>
 

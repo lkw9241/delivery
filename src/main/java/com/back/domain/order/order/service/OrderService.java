@@ -18,9 +18,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
-    /**
-     * 전체 조회
-     */
+   //전체 조회
     public List<Order> findAll() {
         return orderRepository.findAll();
     }
@@ -43,7 +41,7 @@ public class OrderService {
     }
 
     /**
-     * 진행 상태 변경
+     * 협력업체에서 가공 진행 상태 변경
      */
     @Transactional
     public void updateProgressStatus(Long id, OrderStatus status) {
