@@ -60,9 +60,8 @@ public class Order {
         this.progressStatus = OrderStatus.RECEIVED;
     }
 
-    /**
-     * 위험 상태 업데이트
-     */
+
+    //위험 상태 업데이트
     public void updateRiskStatus(RiskStatus riskStatus) {
         this.riskStatus = riskStatus;
     }
