@@ -53,9 +53,8 @@ public class Order {
         this.progressStatus = status;
     }
 
-    /**
-     * 입고 처리
-     */
+
+    //입고 처리
     public void markReceived() {
         this.received = true;
         this.progressStatus = OrderStatus.RECEIVED;
