@@ -31,6 +31,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.apache.poi:poi:5.2.5")
 	implementation("org.apache.poi:poi-ooxml:5.2.5")
+	implementation("org.apache.commons:commons-compress:1.26.0")
 
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")

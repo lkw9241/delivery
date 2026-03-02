@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>납기 모니터링 대시보드</title>
     <style>
         body {
@@ -83,6 +84,15 @@
 
 <h1>📊 납기 모니터링 대시보드</h1>
 
+<h2>📥 엑셀 업로드</h2>
+
+<form method="post" enctype="multipart/form-data" action="/upload">
+    <input type="file" name="file" required>
+    <button type="submit">업로드</button>
+</form>
+
+<br>
+
 <!-- KPI 카드 -->
 <div class="kpi-container">
     <div class="card total">
@@ -115,13 +125,13 @@
     </thead>
     <tbody>
     <tr th:each="order : ${orders}">
-        <td th:text="${order.orderNumber}"></td>
-        <td th:text="${order.itemName}"></td>
+        <td th:text="${order.poNumber}"></td>
+        <td th:text="${order.item}"></td>
         <td th:text="${order.vendor}"></td>
         <td th:text="${order.dueDate}"></td>
 
-        <td th:text="${order.status}"
-            th:classappend="'status-' + ${order.status}">
+        <td th:text="${order.progressStatus}"
+            th:classappend="'status-' + ${order.progressStatus}">
         </td>
 
         <td>
