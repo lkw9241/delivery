@@ -47,9 +47,8 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private RiskStatus riskStatus;
 
-    /**
-     * 진행 상태 변경
-     */
+
+     //진행 상태 변경
     public void updateProgressStatus(OrderStatus status) {
         this.progressStatus = status;
     }
