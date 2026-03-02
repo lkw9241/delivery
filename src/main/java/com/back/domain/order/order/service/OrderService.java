@@ -67,9 +67,9 @@ public class OrderService {
         return orderRepository.findByRiskStatus(RiskStatus.DELAYED);
     }
 
-    /**
-     * 위험도 판단 로직 (핵심 비즈니스)
-     */
+
+    //위험도 판단 로직 (핵심 비즈니스)
+
     private void evaluateRisk(Order order) {
 
         if (order.isReceived()) {
