@@ -58,7 +58,7 @@
             font-weight: bold;
         }
 
-        .status-RISK {
+        .status-WARNING {
             color: orange;
             font-weight: bold;
         }
@@ -138,9 +138,10 @@
             <!-- 상태 변경 -->
             <form th:action="@{/dashboard/{id}/status(id=${order.id})}" method="post" style="display:inline;">
                 <select name="status">
-                    <option value="NORMAL">정상</option>
-                    <option value="RISK">위험</option>
-                    <option value="DELAYED">지연</option>
+                    <option value="NOT_STARTED">미착수</option>
+                    <option value="PROCESSING">가공중</option>
+                    <option value="COMPLETED">완료</option>
+                    <option value="RECEIVED">입고</option>
                 </select>
                 <button class="btn-update">변경</button>
             </form>
