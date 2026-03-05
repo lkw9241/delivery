@@ -19,9 +19,14 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
    //전체 조회
-    public List<Order> findAll() {
-        return orderRepository.findAll();
-    }
+   public List<Order> findAll() {
+
+       List<Order> orders = orderRepository.findAll();
+
+       orders.forEach(this::evaluateRisk);
+
+       return orders;
+   }
 
     /**
      * 단건 조회
@@ -64,7 +69,14 @@ public class OrderService {
      * 지연 주문 조회
      */
     public List<Order> findDelayedOrders() {
-        return orderRepository.findByRiskStatus(RiskStatus.DELAYED);
+
+        List<Order> orders = orderRepository.findAll();
+
+        orders.forEach(this::evaluateRisk);
+
+        return orders.stream()
+                .filter(o -> o.getRiskStatus() == RiskStatus.DELAYED)
+                .toList();
     }
 
 
