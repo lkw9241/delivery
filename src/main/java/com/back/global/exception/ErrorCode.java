@@ -16,6 +16,11 @@ public enum ErrorCode {
     ORDER_INVALID_STATUS_TRANSITION(HttpStatus.BAD_REQUEST, "O003", "유효하지 않은 상태 변경입니다."),
 
     // ───────────────────────────────────────
+    // Notification
+    // ───────────────────────────────────────
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "N001", "해당 알림을 찾을 수 없습니다."),
+
+    // ───────────────────────────────────────
     // Excel
     // ───────────────────────────────────────
     EXCEL_EMPTY_FILE(HttpStatus.BAD_REQUEST, "E001", "업로드된 파일이 비어 있습니다."),

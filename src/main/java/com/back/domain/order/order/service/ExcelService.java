@@ -9,10 +9,13 @@ import com.back.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,11 @@ public class ExcelService {
 
     private final OrderRepository orderRepository;
 
+    /**
+     * 엑셀 업로드 — 전체 행을 하나의 트랜잭션으로 처리
+     * 중간 행에서 실패하면 전체 롤백됨 (partial 저장 방지)
+     */
+    @Transactional
     public void upload(MultipartFile file) {
 
         validateFile(file);
@@ -31,6 +39,9 @@ public class ExcelService {
 
             Sheet sheet = workbook.getSheetAt(0);
 
+            // 파싱을 먼저 전부 완료한 뒤 일괄 저장
+            List<Order> orders = new ArrayList<>();
+
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
@@ -39,7 +50,7 @@ public class ExcelService {
                 String vendor = getString(row.getCell(1));
                 String item = getString(row.getCell(2));
 
-                // 필수값 검증
+                // 필수값 검증 — 실패 시 트랜잭션 전체 롤백
                 if (poNumber.isBlank() || vendor.isBlank() || item.isBlank()) {
                     throw new CustomException(ErrorCode.EXCEL_INVALID_ROW,
                             (i + 1) + "번째 행에 필수값(PO번호, 협력사, 품목)이 누락되었습니다.");
@@ -48,7 +59,7 @@ public class ExcelService {
                 LocalDate orderDate = getLocalDate(row.getCell(3));
                 LocalDate dueDate = getLocalDate(row.getCell(4));
 
-                Order order = Order.builder()
+                orders.add(Order.builder()
                         .poNumber(poNumber)
                         .vendor(vendor)
                         .item(item)
@@ -57,10 +68,11 @@ public class ExcelService {
                         .received("Y".equalsIgnoreCase(getString(row.getCell(5))))
                         .progressStatus(OrderStatus.NOT_STARTED)
                         .riskStatus(RiskStatus.NORMAL)
-                        .build();
-
-                orderRepository.save(order);
+                        .build());
             }
+
+            // 파싱 완료 후 일괄 저장
+            orderRepository.saveAll(orders);
 
         } catch (CustomException e) {
             throw e;
@@ -107,11 +119,9 @@ public class ExcelService {
 
     private LocalDate getLocalDate(Cell cell) {
         if (cell == null) return null;
-
         if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
             return cell.getLocalDateTimeCellValue().toLocalDate();
         }
-
         return null;
     }
 }
