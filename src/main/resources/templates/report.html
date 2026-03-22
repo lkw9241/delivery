@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>납기 리포트</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f7f9fc; padding: 30px; }
+
+        .page-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 24px;
+        }
+        h1 { font-size: 22px; }
+        h2 { font-size: 16px; margin: 28px 0 12px; }
+
+        .header-actions { display: flex; gap: 10px; }
+        .btn {
+            padding: 8px 18px; border: none; border-radius: 6px;
+            cursor: pointer; font-size: 14px; text-decoration: none;
+            display: inline-block;
+        }
+        .btn-download { background-color: #27ae60; color: white; }
+        .btn-back     { background-color: #95a5a6; color: white; }
+
+        /* KPI 카드 */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px; margin-bottom: 32px;
+        }
+        .kpi-card {
+            background: white; border-radius: 10px; padding: 20px;
+            text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+        }
+        .kpi-label { font-size: 13px; color: #888; margin-bottom: 8px; }
+        .kpi-value { font-size: 32px; font-weight: bold; }
+        .kpi-sub   { font-size: 12px; color: #aaa; margin-top: 4px; }
+
+        .color-total    { color: #4a90e2; }
+        .color-received { color: #27ae60; }
+        .color-delayed  { color: #e74c3c; }
+        .color-warning  { color: #f39c12; }
+        .color-normal   { color: #2ecc71; }
+
+        /* 섹션 배지 */
+        .section-badge {
+            display: inline-block; padding: 2px 10px; border-radius: 10px;
+            font-size: 12px; font-weight: bold; color: white; margin-left: 8px;
+        }
+        .badge-delayed  { background-color: #e74c3c; }
+        .badge-warning  { background-color: #f39c12; }
+
+        /* 테이블 */
+        table {
+            width: 100%; border-collapse: collapse;
+            background: white; border-radius: 10px; overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        th, td { padding: 11px 14px; border-bottom: 1px solid #eee; text-align: center; }
+        th { background-color: #2c3e50; color: white; }
+        tr:last-child td { border-bottom: none; }
+
+        .risk-DELAYED { color: #e74c3c; font-weight: bold; }
+        .risk-WARNING { color: #f39c12; font-weight: bold; }
+        .risk-NORMAL  { color: #27ae60; font-weight: bold; }
+
+        a.order-link { color: #3498db; text-decoration: none; }
+        a.order-link:hover { text-decoration: underline; }
+
+        .empty-msg { text-align: center; padding: 30px; color: #aaa; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <h1>📋 납기 리포트
+        <span style="font-size:14px; font-weight:normal; color:#aaa;"
+              th:text="'— ' + ${report.reportDate}"></span>
+    </h1>
+    <div class="header-actions">
+        <a href="/report/download" class="btn btn-download">📥 엑셀 다운로드</a>
+        <a href="/dashboard" class="btn btn-back">← 대시보드</a>
+    </div>
+</div>
+
+<!-- KPI 카드 -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">전체 발주</div>
+        <div class="kpi-value color-total" th:text="${report.totalCount}"></div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">입고 완료</div>
+        <div class="kpi-value color-received" th:text="${report.receivedCount}"></div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">🔴 지연</div>
+        <div class="kpi-value color-delayed" th:text="${report.delayedCount}"></div>
+        <div class="kpi-sub" th:text="'지연율 ' + ${report.delayRate} + '%'"></div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">🟠 위험</div>
+        <div class="kpi-value color-warning" th:text="${report.warningCount}"></div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">🟢 정상</div>
+        <div class="kpi-value color-normal" th:text="${report.normalCount}"></div>
+    </div>
+</div>
+
+<!-- 지연 발주 테이블 -->
+<h2>🔴 지연 발주
+    <span class="section-badge badge-delayed" th:text="${report.delayedCount} + '건'"></span>
+</h2>
+<div th:if="${#lists.isEmpty(report.delayedOrders)}" class="empty-msg">지연 발주 없음 ✅</div>
+<table th:unless="${#lists.isEmpty(report.delayedOrders)}">
+    <thead><tr>
+        <th>PO번호</th><th>품목</th><th>협력사</th>
+        <th>발주일</th><th>납기일</th><th>진행 상태</th>
+    </tr></thead>
+    <tbody>
+    <tr th:each="o : ${report.delayedOrders}">
+        <td><a class="order-link" th:href="@{/dashboard/{id}(id=${o.id})}" th:text="${o.poNumber}"></a></td>
+        <td th:text="${o.item}"></td>
+        <td th:text="${o.vendor}"></td>
+        <td th:text="${o.orderDate} ?: '-'"></td>
+        <td th:text="${o.dueDate} ?: '-'"></td>
+        <td th:text="${o.progressStatusDescription}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- 위험 발주 테이블 -->
+<h2>🟠 위험 발주
+    <span class="section-badge badge-warning" th:text="${report.warningCount} + '건'"></span>
+</h2>
+<div th:if="${#lists.isEmpty(report.warningOrders)}" class="empty-msg">위험 발주 없음 ✅</div>
+<table th:unless="${#lists.isEmpty(report.warningOrders)}">
+    <thead><tr>
+        <th>PO번호</th><th>품목</th><th>협력사</th>
+        <th>발주일</th><th>납기일</th><th>진행 상태</th>
+    </tr></thead>
+    <tbody>
+    <tr th:each="o : ${report.warningOrders}">
+        <td><a class="order-link" th:href="@{/dashboard/{id}(id=${o.id})}" th:text="${o.poNumber}"></a></td>
+        <td th:text="${o.item}"></td>
+        <td th:text="${o.vendor}"></td>
+        <td th:text="${o.orderDate} ?: '-'"></td>
+        <td th:text="${o.dueDate} ?: '-'"></td>
+        <td th:text="${o.progressStatusDescription}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

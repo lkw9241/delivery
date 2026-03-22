@@ -9,6 +9,7 @@ import com.back.domain.order.order.enums.RiskStatus;
 import com.back.domain.order.order.repository.OrderRepository;
 import com.back.global.exception.CustomException;
 import com.back.global.exception.ErrorCode;
+import com.back.global.util.RiskEvaluator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,10 +27,9 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final OrderRepository orderRepository;
+    private final RiskEvaluator riskEvaluator;
 
-    // ───────────────────────────────────────
-    // 핵심: 지연/위험 발주 스캔 후 알림 생성
-    // ───────────────────────────────────────
+    // 지연/위험 발주 스캔 후 알림 생성
     @Transactional
     public int generateDelayNotifications() {
         LocalDate today = LocalDate.now();
@@ -39,7 +39,7 @@ public class NotificationService {
         for (Order order : orders) {
             if (order.isReceived()) continue;
 
-            RiskStatus risk = evaluateRisk(order, today);
+            RiskStatus risk = riskEvaluator.calculateRisk(order, today);
 
             if (risk == RiskStatus.DELAYED) {
                 createIfNotExists(order, NotificationType.DELAYED, today, newNotifications);
@@ -58,42 +58,28 @@ public class NotificationService {
         return newNotifications.size();
     }
 
-    // ───────────────────────────────────────
-    // 조회
-    // ───────────────────────────────────────
-
     // 전체 알림 최신순 조회
     public List<NotificationResponse> findAll() {
         return notificationRepository.findAllByOrderByNotifiedAtDesc()
-                .stream()
-                .map(NotificationResponse::from)
-                .toList();
+                .stream().map(NotificationResponse::from).toList();
     }
 
     // 읽지 않은 알림만 조회
     public List<NotificationResponse> findUnread() {
         return notificationRepository.findByReadFalseOrderByNotifiedAtDesc()
-                .stream()
-                .map(NotificationResponse::from)
-                .toList();
+                .stream().map(NotificationResponse::from).toList();
     }
 
     // 특정 발주의 알림 이력 조회
     public List<NotificationResponse> findByOrderId(Long orderId) {
         return notificationRepository.findByOrderIdOrderByNotifiedAtDesc(orderId)
-                .stream()
-                .map(NotificationResponse::from)
-                .toList();
+                .stream().map(NotificationResponse::from).toList();
     }
 
-    // 읽지 않은 알림 수 (count 쿼리 — 엔티티 전체 로드 없이 카운트)
+    // 읽지 않은 알림 수 (count 쿼리)
     public long countUnread() {
         return notificationRepository.countByReadFalse();
     }
-
-    // ───────────────────────────────────────
-    // 읽음 처리
-    // ───────────────────────────────────────
 
     // 단건 읽음 처리
     @Transactional
@@ -115,37 +101,14 @@ public class NotificationService {
     // ───────────────────────────────────────
     // 내부 헬퍼
     // ───────────────────────────────────────
-    private void createIfNotExists(
-            Order order,
-            NotificationType type,
-            LocalDate today,
-            List<Notification> target
-    ) {
+    private void createIfNotExists(Order order, NotificationType type,
+                                   LocalDate today, List<Notification> target) {
         boolean alreadyExists = notificationRepository
                 .existsByOrderIdAndNotificationTypeAndNotifiedDate(order.getId(), type, today);
-
         if (!alreadyExists) {
             target.add(Notification.create(
-                    order.getId(),
-                    order.getPoNumber(),
-                    order.getVendor(),
-                    order.getItem(),
-                    order.getDueDate(),
-                    type
-            ));
-        }
-    }
-
-    private RiskStatus evaluateRisk(Order order, LocalDate today) {
-        LocalDate dueDate = order.getDueDate();
-        if (dueDate == null) return RiskStatus.NORMAL;
-
-        if (today.isAfter(dueDate)) {
-            return RiskStatus.DELAYED;
-        } else if (today.plusDays(3).isAfter(dueDate)) {
-            return RiskStatus.WARNING;
-        } else {
-            return RiskStatus.NORMAL;
+                    order.getId(), order.getPoNumber(), order.getVendor(),
+                    order.getItem(), order.getDueDate(), type));
         }
     }
 }

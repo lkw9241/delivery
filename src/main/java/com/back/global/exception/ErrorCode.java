@@ -16,6 +16,17 @@ public enum ErrorCode {
     ORDER_INVALID_STATUS_TRANSITION(HttpStatus.BAD_REQUEST, "O003", "유효하지 않은 상태 변경입니다."),
 
     // ───────────────────────────────────────
+    // Vendor
+    // ───────────────────────────────────────
+    VENDOR_NOT_FOUND(HttpStatus.NOT_FOUND, "V001", "해당 협력사를 찾을 수 없습니다."),
+    VENDOR_DUPLICATE_NAME(HttpStatus.BAD_REQUEST, "V002", "이미 등록된 협력사 이름입니다."),
+
+    // ───────────────────────────────────────
+    // Report
+    // ───────────────────────────────────────
+    REPORT_GENERATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R001", "리포트 생성 중 오류가 발생했습니다."),
+
+    // ───────────────────────────────────────
     // Notification
     // ───────────────────────────────────────
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "N001", "해당 알림을 찾을 수 없습니다."),

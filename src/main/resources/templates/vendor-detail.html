@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>협력사 상세</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f7f9fc; padding: 30px; }
+        h1 { margin-bottom: 24px; font-size: 22px; }
+
+        .detail-card {
+            background: white; border-radius: 10px;
+            padding: 30px; max-width: 560px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .detail-row {
+            display: flex; padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { width: 120px; font-weight: bold; color: #555; flex-shrink: 0; }
+        .detail-value { color: #222; }
+
+        .actions { margin-top: 24px; display: flex; gap: 10px; }
+        .btn {
+            padding: 8px 16px; border: none; border-radius: 6px;
+            cursor: pointer; font-size: 14px; text-decoration: none;
+            display: inline-block;
+        }
+        .btn-edit   { background-color: #f39c12; color: white; }
+        .btn-delete { background-color: #e74c3c; color: white; }
+        .btn-back   { background-color: #95a5a6; color: white; }
+    </style>
+</head>
+<body>
+
+<h1>🏭 협력사 상세</h1>
+
+<div class="detail-card">
+    <div class="detail-row">
+        <span class="detail-label">협력사명</span>
+        <span class="detail-value" th:text="${vendor.name}"></span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label">담당자</span>
+        <span class="detail-value" th:text="${vendor.contactName} ?: '-'"></span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label">연락처</span>
+        <span class="detail-value" th:text="${vendor.phone} ?: '-'"></span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label">이메일</span>
+        <span class="detail-value" th:text="${vendor.email} ?: '-'"></span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label">비고</span>
+        <span class="detail-value" th:text="${vendor.note} ?: '-'"></span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label">등록일시</span>
+        <span class="detail-value"
+              th:text="${#temporals.format(vendor.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+    </div>
+</div>
+
+<div class="actions">
+    <a th:href="@{/vendors/{id}/edit(id=${vendor.id})}" class="btn btn-edit">수정</a>
+    <form th:action="@{/vendors/{id}/delete(id=${vendor.id})}" method="post" style="display:inline;"
+          onsubmit="return confirm('정말 삭제하시겠습니까?')">
+        <button type="submit" class="btn btn-delete">삭제</button>
+    </form>
+    <a href="/vendors" class="btn btn-back">← 목록</a>
+</div>
+
+</body>
+</html>
