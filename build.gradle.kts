@@ -25,20 +25,24 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-h2console")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-webmvc")
+	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-	implementation("org.apache.poi:poi:5.2.5")
-	implementation("org.apache.poi:poi-ooxml:5.2.5")
-	implementation("org.apache.commons:commons-compress:1.26.0")
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf-extras-springsecurity6")
+
+	// Apache POI — 5.4.0 이상: CVE-2025-31672 수정 버전
+	implementation("org.apache.poi:poi:5.4.0")
+	implementation("org.apache.poi:poi-ooxml:5.4.0")
+	implementation("org.apache.commons:commons-compress:1.27.1")
 
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.h2database:h2")
 	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+
+	// ── 테스트 ──
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
