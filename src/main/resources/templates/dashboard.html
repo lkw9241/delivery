@@ -10,9 +10,7 @@
             background-color: #f7f9fc;
         }
 
-        h1 {
-            margin-bottom: 20px;
-        }
+        h1 { margin-bottom: 20px; }
 
         .kpi-container {
             display: flex;
@@ -30,9 +28,10 @@
             text-align: center;
         }
 
-        .total { background-color: #4a90e2; }
-        .delay { background-color: #e74c3c; }
-        .normal { background-color: #27ae60; }
+        .total   { background-color: #4a90e2; }
+        .delay   { background-color: #e74c3c; }
+        .warning { background-color: #f39c12; }
+        .normal  { background-color: #27ae60; }
 
         table {
             width: 100%;
@@ -48,25 +47,11 @@
             text-align: center;
         }
 
-        th {
-            background-color: #2c3e50;
-            color: white;
-        }
+        th { background-color: #2c3e50; color: white; }
 
-        .status-DELAYED {
-            color: red;
-            font-weight: bold;
-        }
-
-        .status-WARNING {
-            color: orange;
-            font-weight: bold;
-        }
-
-        .status-NORMAL {
-            color: green;
-            font-weight: bold;
-        }
+        .risk-DELAYED { color: red;    font-weight: bold; }
+        .risk-WARNING { color: orange; font-weight: bold; }
+        .risk-NORMAL  { color: green;  font-weight: bold; }
 
         button {
             padding: 6px 10px;
@@ -75,39 +60,39 @@
             cursor: pointer;
         }
 
-        .btn-update { background-color: #3498db; color: white; }
+        .btn-update  { background-color: #3498db; color: white; }
         .btn-receive { background-color: #2ecc71; color: white; }
-
     </style>
 </head>
 <body>
 
 <h1>📊 납기 모니터링 대시보드</h1>
 
+<!-- 엑셀 업로드 -->
 <h2>📥 엑셀 업로드</h2>
-
 <form method="post" enctype="multipart/form-data" action="/upload">
-    <input type="file" name="file" required>
+    <input type="file" name="file" accept=".xls,.xlsx" required>
     <button type="submit">업로드</button>
 </form>
-
 <br>
 
 <!-- KPI 카드 -->
 <div class="kpi-container">
     <div class="card total">
         총 주문<br>
-        <span th:text="${totalCount}"></span>
+        <span th:text="${dashboard.totalCount}"></span>
     </div>
-
     <div class="card delay">
         🔴 지연<br>
-        <span th:text="${delayCount}"></span>
+        <span th:text="${dashboard.delayCount}"></span>
     </div>
-
+    <div class="card warning">
+        🟠 위험<br>
+        <span th:text="${dashboard.warningCount}"></span>
+    </div>
     <div class="card normal">
         🟢 정상<br>
-        <span th:text="${totalCount - delayCount}"></span>
+        <span th:text="${dashboard.normalCount}"></span>
     </div>
 </div>
 
@@ -118,22 +103,23 @@
         <th>주문번호</th>
         <th>품목</th>
         <th>업체</th>
+        <th>발주일</th>
         <th>납기일</th>
-        <th>상태</th>
+        <th>진행 상태</th>
+        <th>위험 상태</th>
         <th>관리</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="order : ${orders}">
+    <tr th:each="order : ${dashboard.orders}">
         <td th:text="${order.poNumber}"></td>
         <td th:text="${order.item}"></td>
         <td th:text="${order.vendor}"></td>
+        <td th:text="${order.orderDate}"></td>
         <td th:text="${order.dueDate}"></td>
-
-        <td th:text="${order.progressStatus.description}"
-            th:classappend="'status-' + ${order.progressStatus}">
-        </td>
-
+        <td th:text="${order.progressStatusDescription}"></td>
+        <td th:text="${order.riskStatusDescription}"
+            th:classappend="'risk-' + ${order.riskStatus}"></td>
         <td>
             <!-- 상태 변경 -->
             <form th:action="@{/dashboard/{id}/status(id=${order.id})}" method="post" style="display:inline;">
@@ -145,10 +131,9 @@
                 </select>
                 <button class="btn-update">변경</button>
             </form>
-
             <!-- 입고 처리 -->
             <form th:action="@{/dashboard/{id}/receive(id=${order.id})}" method="post" style="display:inline;">
-                <button class="btn-receive">입고완료</button>
+                <button class="btn-receive" th:disabled="${order.received}">입고완료</button>
             </form>
         </td>
     </tr>
