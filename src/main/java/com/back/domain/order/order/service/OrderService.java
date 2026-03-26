@@ -23,7 +23,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final RiskEvaluator riskEvaluator;
 
-    // 전체 조회
+    // 전체조회
     public List<OrderResponse> findAll() {
         List<Order> orders = orderRepository.findAll();
         orders.forEach(riskEvaluator::evaluate);
