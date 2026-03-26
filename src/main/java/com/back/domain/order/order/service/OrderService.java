@@ -30,7 +30,7 @@ public class OrderService {
         return orders.stream().map(OrderResponse::from).toList();
     }
 
-    // 단건 조회
+    // 단건조회
     public OrderResponse findById(Long id) {
         Order order = findOrderById(id);
         riskEvaluator.evaluate(order);
