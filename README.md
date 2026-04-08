@@ -29,15 +29,15 @@ Spring Boot 기반으로 주문 상태를 관리하고, 납기 기준으로 리�
 
 ### 🛠 Tech Stack
 ```
-| Category        | Stack           |
-| --------------- | --------------- |
-| Language        | Java 17         |
-| Framework       | Spring Boot     |
-| ORM             | Spring Data JPA |
-| Database        | MySQL           |
-| Build Tool      | Gradle          |
-| Version Control | Git / GitHub    |
-| API             | REST API        |
+| Category        | Stack             |
+| --------------- | ------------------|
+| Language        | Java 21           |
+| Framework       | Spring Boot       |
+| ORM             | Spring Data JPA   |
+| Database        | H2                |
+| Build Tool      | Gradle            |
+| Version Control | Git / GitHub      |
+| API             | REST API/Thymeleaf|
 ```
 
 ### Project Structure
@@ -47,7 +47,7 @@ delivery
 ├─ src
 │ ├─ main
 │ │ ├─ java
-│ │ │ └─ com.example.delivery
+│ │ │ └─ com.back.domain
 │ │ │ ├─ controller
 │ │ │ ├─ service
 │ │ │ ├─ repository
