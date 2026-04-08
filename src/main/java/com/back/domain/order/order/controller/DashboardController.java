@@ -16,8 +16,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/dashboard")
-public class DashboardController {
-
+    public class DashboardController {
     private final OrderService orderService;
     private final NotificationService notificationService;
 
@@ -75,4 +74,3 @@ public class DashboardController {
         orderService.markReceived(id);
         return "redirect:/dashboard";
     }
-}
