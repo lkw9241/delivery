@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>알림 목록</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            padding: 30px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        h1 { font-size: 24px; }
+
+        .header-actions { display: flex; gap: 12px; align-items: center; }
+
+        .badge-count {
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 12px;
+            padding: 3px 10px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        button, .btn-back {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-read-all { background-color: #3498db; color: white; }
+        .btn-back     { background-color: #95a5a6; color: white; }
+
+        .notification-list { display: flex; flex-direction: column; gap: 10px; }
+
+        .notification-item {
+            background: white;
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            border-left: 5px solid #ddd;
+        }
+
+        .notification-item.unread   { border-left-color: #e74c3c; background-color: #fff8f8; }
+        .notification-item.DELAYED  { border-left-color: #e74c3c; }
+        .notification-item.WARNING  { border-left-color: #f39c12; }
+
+        .notif-left { display: flex; flex-direction: column; gap: 5px; }
+
+        .notif-message { font-size: 15px; color: #222; font-weight: 500; }
+
+        .notif-meta { font-size: 12px; color: #999; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            margin-right: 6px;
+        }
+
+        .badge-DELAYED { background-color: #e74c3c; }
+        .badge-WARNING { background-color: #f39c12; }
+
+        .badge-unread {
+            background-color: #e74c3c;
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+
+        .notif-right { display: flex; gap: 8px; align-items: center; }
+
+        .btn-read {
+            background-color: #ecf0f1;
+            color: #555;
+            padding: 5px 12px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-read:hover { background-color: #dfe6e9; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 0;
+            color: #aaa;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <h1>
+        🔔 알림 목록
+        <span class="badge-count" th:if="${unreadCount > 0}" th:text="${unreadCount} + '건 미읽음'"></span>
+    </h1>
+    <div class="header-actions">
+        <!-- 전체 읽음 처리 -->
+        <form action="/notifications/read-all" method="post" style="display:inline;">
+            <button class="btn-read-all" th:disabled="${unreadCount == 0}">모두 읽음 처리</button>
+        </form>
+        <a href="/dashboard" class="btn-back">← 대시보드</a>
+    </div>
+</div>
+
+<!-- 알림이 없을 때 -->
+<div class="empty-state" th:if="${#lists.isEmpty(notifications)}">
+    알림이 없습니다. 🎉
+</div>
+
+<!-- 알림 목록 -->
+<div class="notification-list" th:unless="${#lists.isEmpty(notifications)}">
+    <div th:each="n : ${notifications}"
+         class="notification-item"
+         th:classappend="${!n.read} ? 'unread ' + ${n.notificationType} : ${n.notificationType}">
+
+        <div class="notif-left">
+            <div class="notif-message">
+                <span class="badge"
+                      th:classappend="'badge-' + ${n.notificationType}"
+                      th:text="${n.notificationTypeDescription}"></span>
+                <span th:text="${n.message}"></span>
+                <span class="badge-unread" th:if="${!n.read}">NEW</span>
+            </div>
+            <div class="notif-meta"
+                 th:text="${#temporals.format(n.notifiedAt, 'yyyy-MM-dd HH:mm')}">
+            </div>
+        </div>
+
+        <div class="notif-right">
+            <!-- 단건 읽음 처리 (미읽음일 때만 표시) -->
+            <form th:if="${!n.read}"
+                  th:action="@{/notifications/{id}/read(id=${n.id})}"
+                  method="post">
+                <button class="btn-read">읽음</button>
+            </form>
+            <!-- 발주 상세 이동 -->
+            <a th:href="@{/dashboard/{id}(id=${n.orderId})}"
+               style="font-size:13px; color:#3498db; text-decoration:none;">
+                발주 보기 →
+            </a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

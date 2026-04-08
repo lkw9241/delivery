@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>협력사 목록</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f7f9fc; padding: 30px; }
+
+        .page-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 20px;
+        }
+        h1 { font-size: 22px; }
+
+        .search-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+        .search-bar input {
+            padding: 8px 12px; border: 1px solid #ccc;
+            border-radius: 6px; width: 260px; font-size: 14px;
+        }
+
+        table {
+            width: 100%; border-collapse: collapse;
+            background: white; border-radius: 10px; overflow: hidden;
+        }
+        th, td { padding: 12px 16px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background-color: #2c3e50; color: white; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f0f4f8; }
+
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        button, .btn {
+            padding: 8px 16px; border: none; border-radius: 6px;
+            cursor: pointer; font-size: 14px; text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background-color: #3498db; color: white; }
+        .btn-search  { background-color: #7f8c8d; color: white; }
+
+        .empty-state { text-align: center; padding: 48px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <h1>🏭 협력사 목록</h1>
+    <div style="display:flex; gap:10px; align-items:center;">
+        <a href="/vendors/new" class="btn btn-primary">+ 협력사 등록</a>
+        <a href="/dashboard" class="btn" style="background:#95a5a6; color:white;">← 대시보드</a>
+    </div>
+</div>
+
+<!-- 검색 -->
+<form method="get" action="/vendors" class="search-bar">
+    <input type="text" name="keyword" placeholder="협력사명 검색"
+           th:value="${keyword}">
+    <button type="submit" class="btn btn-search">검색</button>
+    <a th:if="${keyword != null and !keyword.isBlank()}"
+       href="/vendors" class="btn" style="background:#bdc3c7; color:white;">초기화</a>
+</form>
+
+<!-- 목록 테이블 -->
+<div th:if="${#lists.isEmpty(vendors)}" class="empty-state">
+    등록된 협력사가 없습니다.
+</div>
+
+<table th:unless="${#lists.isEmpty(vendors)}">
+    <thead>
+    <tr>
+        <th>협력사명</th>
+        <th>담당자</th>
+        <th>연락처</th>
+        <th>이메일</th>
+        <th>등록일</th>
+        <th>관리</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="v : ${vendors}">
+        <td><a th:href="@{/vendors/{id}(id=${v.id})}" th:text="${v.name}"></a></td>
+        <td th:text="${v.contactName} ?: '-'"></td>
+        <td th:text="${v.phone} ?: '-'"></td>
+        <td th:text="${v.email} ?: '-'"></td>
+        <td th:text="${#temporals.format(v.createdAt, 'yyyy-MM-dd')}"></td>
+        <td style="display:flex; gap:6px;">
+            <a th:href="@{/vendors/{id}/edit(id=${v.id})}"
+               class="btn" style="background:#f39c12; color:white; padding:5px 10px; font-size:13px;">수정</a>
+            <form th:action="@{/vendors/{id}/delete(id=${v.id})}" method="post" style="display:inline;"
+                  onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                <button type="submit"
+                        style="background:#e74c3c; color:white; padding:5px 10px; font-size:13px; border:none; border-radius:6px; cursor:pointer;">
+                    삭제
+                </button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
