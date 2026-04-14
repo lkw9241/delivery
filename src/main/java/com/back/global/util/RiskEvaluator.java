@@ -38,7 +38,6 @@ public class RiskEvaluator {
         if (dueDate == null) {
             return RiskStatus.NORMAL;
         }
-
         if (today.isAfter(dueDate)) {
             return RiskStatus.DELAYED;
         } else if (today.plusDays(3).isAfter(dueDate)) {
